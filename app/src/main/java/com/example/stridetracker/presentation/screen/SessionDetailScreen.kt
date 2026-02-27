@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -45,11 +46,16 @@ fun SessionDetailScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SessionDetailViewModel = viewModel(
-        factory = SessionDetailViewModelFactory(sessionId, sessionDao)
+        factory = SessionDetailViewModelFactory(sessionDao)
     )
 ) {
     val session by viewModel.session.collectAsState()
     val segments by viewModel.segments.collectAsState()
+
+    LaunchedEffect(sessionId) {
+        viewModel.getSession(sessionId)
+        viewModel.getSegments(sessionId)
+    }
 
     Scaffold(
         topBar = {

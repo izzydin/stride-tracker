@@ -1,5 +1,6 @@
 package com.example.stridetracker.presentation.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,6 +40,7 @@ import java.util.Locale
 fun SessionHistoryScreen(
     sessionDao: SessionDao,
     onBack: () -> Unit,
+    onSessionClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SessionHistoryViewModel = viewModel(
         factory = SessionHistoryViewModelFactory(sessionDao)
@@ -79,7 +81,10 @@ fun SessionHistoryScreen(
                     modifier = Modifier.padding(top = 8.dp)
                 ) {
                     items(sessions) { session ->
-                        SessionItem(session)
+                        SessionItem(
+                            session = session,
+                            onClick = { onSessionClick(session.id) }
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
@@ -89,9 +94,14 @@ fun SessionHistoryScreen(
 }
 
 @Composable
-fun SessionItem(session: SessionEntity) {
+fun SessionItem(
+    session: SessionEntity,
+    onClick: () -> Unit
+) {
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

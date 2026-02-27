@@ -9,12 +9,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.stridetracker.data.local.AppDatabase
 import com.example.stridetracker.data.local.SessionDao
 import com.example.stridetracker.presentation.screen.MeasurementScreen
+import com.example.stridetracker.presentation.screen.SessionDetailScreen
 import com.example.stridetracker.presentation.screen.SessionHistoryScreen
 import com.example.stridetracker.ui.theme.StrideTrackerTheme
 
@@ -28,14 +31,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             StrideTrackerTheme {
-                StrideTrackerApp(sessionDao)
+                StrideTrackerNavHost(sessionDao)
             }
         }
     }
 }
 
 @Composable
-fun StrideTrackerApp(sessionDao: SessionDao) {
+fun StrideTrackerNavHost(sessionDao: SessionDao) {
     val navController = rememberNavController()
     
     NavHost(navController = navController, startDestination = "measurement") {
@@ -51,6 +54,23 @@ fun StrideTrackerApp(sessionDao: SessionDao) {
         composable("history") {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                 SessionHistoryScreen(
+                    sessionDao = sessionDao,
+                    onBack = { navController.popBackStack() },
+                    onSessionClick = { sessionId -> 
+                        navController.navigate("detail/$sessionId")
+                    },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+        }
+        composable(
+            route = "detail/{sessionId}",
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val sessionId = backStackEntry.arguments?.getLong("sessionId") ?: 0L
+            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                SessionDetailScreen(
+                    sessionId = sessionId,
                     sessionDao = sessionDao,
                     onBack = { navController.popBackStack() },
                     modifier = Modifier.padding(innerPadding)

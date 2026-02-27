@@ -11,8 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +37,8 @@ import java.util.Locale
 @Composable
 fun MeasurementScreen(
     sessionDao: SessionDao,
+    onNavigateToHistory: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: MeasurementViewModel = viewModel(
         factory = MeasurementViewModelFactory(sessionDao)
     )
@@ -40,10 +46,23 @@ fun MeasurementScreen(
     val uiState by viewModel.uiState.collectAsState()
     val configuration = LocalConfiguration.current
 
-    if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        MeasurementLandscape(uiState, viewModel)
-    } else {
-        MeasurementPortrait(uiState, viewModel)
+    Column(modifier = modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            IconButton(onClick = onNavigateToHistory) {
+                Icon(imageVector = Icons.AutoMirrored.Filled.List, contentDescription = "History")
+            }
+        }
+
+        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            MeasurementLandscape(uiState, viewModel)
+        } else {
+            MeasurementPortrait(uiState, viewModel)
+        }
     }
 }
 

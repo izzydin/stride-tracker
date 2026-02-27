@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.stridetracker.presentation.viewmodel.MeasurementViewModel
+import java.util.Locale
 
 @Composable
 fun MeasurementScreen(
@@ -32,6 +33,11 @@ fun MeasurementScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
+            text = formatElapsedTime(uiState.elapsedTimeMillis),
+            style = MaterialTheme.typography.displayMedium,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        Text(
             text = "Total Strides: ${uiState.totalStrides}",
             style = MaterialTheme.typography.headlineMedium
         )
@@ -41,7 +47,8 @@ fun MeasurementScreen(
         )
         Text(
             text = if (uiState.isRunning) "Running" else "Stopped",
-            color = if (uiState.isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+            color = if (uiState.isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(top = 8.dp)
         )
 
         Row(
@@ -60,5 +67,18 @@ fun MeasurementScreen(
                 Text("Stride")
             }
         }
+    }
+}
+
+private fun formatElapsedTime(millis: Long): String {
+    val seconds = (millis / 1000) % 60
+    val minutes = (millis / (1000 * 60)) % 60
+    val hours = (millis / (1000 * 60 * 60))
+    val tenths = (millis / 100) % 10
+    
+    return if (hours > 0) {
+        String.format(Locale.getDefault(), "%02d:%02d:%02d.%d", hours, minutes, seconds, tenths)
+    } else {
+        String.format(Locale.getDefault(), "%02d:%02d.%d", minutes, seconds, tenths)
     }
 }

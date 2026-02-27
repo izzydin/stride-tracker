@@ -9,8 +9,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SessionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSession(session: SessionEntity)
+    suspend fun insertSession(session: SessionEntity): Long
 
     @Query("SELECT * FROM sessions ORDER BY date DESC")
     fun getAllSessions(): Flow<List<SessionEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSegments(segments: List<SegmentEntity>)
+
+    @Query("SELECT * FROM segments WHERE sessionId = :sessionId ORDER BY segmentIndex ASC")
+    fun getSegmentsForSession(sessionId: Long): Flow<List<SegmentEntity>>
 }

@@ -24,13 +24,18 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.stridetracker.data.local.SessionDao
 import com.example.stridetracker.domain.model.SessionState
 import com.example.stridetracker.presentation.viewmodel.MeasurementViewModel
+import com.example.stridetracker.presentation.viewmodel.MeasurementViewModelFactory
 import java.util.Locale
 
 @Composable
 fun MeasurementScreen(
-    viewModel: MeasurementViewModel = viewModel()
+    sessionDao: SessionDao,
+    viewModel: MeasurementViewModel = viewModel(
+        factory = MeasurementViewModelFactory(sessionDao)
+    )
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val configuration = LocalConfiguration.current
@@ -110,16 +115,16 @@ private fun StatsSection(uiState: SessionState) {
         modifier = Modifier.padding(bottom = 8.dp)
     )
     Text(
-        text = "Zancadas Totales: ${uiState.totalStrides}",
+        text = "Total Strides: ${uiState.totalStrides}",
         style = MaterialTheme.typography.headlineMedium
     )
     Text(
-        text = "Segmento actual: ${uiState.currentSegmentStrides}",
+        text = "Current Segment: ${uiState.currentSegmentStrides}",
         style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.secondary
     )
     Text(
-        text = if (uiState.isRunning) "CORRIENDO" else "DETENIDO",
+        text = if (uiState.isRunning) "RUNNING" else "STOPPED",
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.Bold,
         color = if (uiState.isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
@@ -138,7 +143,7 @@ private fun ControlButtons(
         modifier = buttonModifier.padding(horizontal = 4.dp),
         enabled = uiState.isRunning
     ) {
-        Text("DISTANCIA", style = MaterialTheme.typography.titleMedium)
+        Text("DISTANCE", style = MaterialTheme.typography.titleMedium)
     }
 
     Button(
@@ -150,7 +155,7 @@ private fun ControlButtons(
             ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
         }
     ) {
-        Text(if (uiState.isRunning) "PARAR" else "COMENZAR", style = MaterialTheme.typography.titleMedium)
+        Text(if (uiState.isRunning) "STOP" else "START", style = MaterialTheme.typography.titleMedium)
     }
 
     Button(
@@ -158,7 +163,7 @@ private fun ControlButtons(
         modifier = buttonModifier.padding(horizontal = 4.dp),
         enabled = uiState.isRunning
     ) {
-        Text("ZANCADA", style = MaterialTheme.typography.titleMedium)
+        Text("STRIDE", style = MaterialTheme.typography.titleMedium)
     }
 }
 

@@ -14,6 +14,9 @@ interface SessionDao {
     @Query("SELECT * FROM sessions ORDER BY date DESC")
     fun getAllSessions(): Flow<List<SessionEntity>>
 
+    @Query("SELECT * FROM sessions WHERE id = :sessionId")
+    fun getSessionById(sessionId: Long): Flow<SessionEntity?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSegments(segments: List<SegmentEntity>)
 

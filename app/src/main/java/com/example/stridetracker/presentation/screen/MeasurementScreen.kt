@@ -110,16 +110,16 @@ private fun StatsSection(uiState: SessionState) {
         modifier = Modifier.padding(bottom = 8.dp)
     )
     Text(
-        text = "Total Strides: ${uiState.totalStrides}",
+        text = "Zancadas Totales: ${uiState.totalStrides}",
         style = MaterialTheme.typography.headlineMedium
     )
     Text(
-        text = "Current Segment: ${uiState.currentSegmentStrides}",
+        text = "Segmento actual: ${uiState.currentSegmentStrides}",
         style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.secondary
     )
     Text(
-        text = if (uiState.isRunning) "RUNNING" else "STOPPED",
+        text = if (uiState.isRunning) "CORRIENDO" else "DETENIDO",
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.Bold,
         color = if (uiState.isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
@@ -138,7 +138,7 @@ private fun ControlButtons(
         modifier = buttonModifier.padding(horizontal = 4.dp),
         enabled = uiState.isRunning
     ) {
-        Text("DISTANCE", style = MaterialTheme.typography.titleMedium)
+        Text("DISTANCIA", style = MaterialTheme.typography.titleMedium)
     }
 
     Button(
@@ -150,7 +150,7 @@ private fun ControlButtons(
             ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
         }
     ) {
-        Text(if (uiState.isRunning) "STOP" else "START", style = MaterialTheme.typography.titleMedium)
+        Text(if (uiState.isRunning) "PARAR" else "COMENZAR", style = MaterialTheme.typography.titleMedium)
     }
 
     Button(
@@ -158,7 +158,7 @@ private fun ControlButtons(
         modifier = buttonModifier.padding(horizontal = 4.dp),
         enabled = uiState.isRunning
     ) {
-        Text("STRIDE", style = MaterialTheme.typography.titleMedium)
+        Text("ZANCADA", style = MaterialTheme.typography.titleMedium)
     }
 }
 

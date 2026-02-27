@@ -2,7 +2,10 @@ package com.example.stridetracker.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.stridetracker.data.local.SessionDao
+import com.example.stridetracker.data.local.SessionEntity
 import com.example.stridetracker.domain.model.SessionState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +14,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class MeasurementViewModel : ViewModel() {
+class MeasurementViewModel(
+    private val sessionDao: SessionDao
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SessionState())
     val uiState: StateFlow<SessionState> = _uiState.asStateFlow()
@@ -37,6 +42,23 @@ class MeasurementViewModel : ViewModel() {
             // When session stops, cancel coroutine
             timerJob?.cancel()
             timerJob = null
+            
+            // Save session to database
+            saveSession()
+        }
+    }
+
+    private fun saveSession() {
+        val currentState = _uiState.value
+        if (currentState.totalStrides > 0 || currentState.elapsedTimeMillis > 0) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val session = SessionEntity(
+                    date = System.currentTimeMillis(),
+                    totalStrides = currentState.totalStrides,
+                    elapsedTimeMillis = currentState.elapsedTimeMillis
+                )
+                sessionDao.insertSession(session)
+            }
         }
     }
 

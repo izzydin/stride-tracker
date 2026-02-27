@@ -2,6 +2,7 @@ package com.example.stridetracker.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.stridetracker.data.local.SegmentEntity
 import com.example.stridetracker.data.local.SessionDao
 import com.example.stridetracker.data.local.SessionEntity
 import com.example.stridetracker.domain.model.SessionState
@@ -57,7 +58,26 @@ class MeasurementViewModel(
                     totalStrides = currentState.totalStrides,
                     elapsedTimeMillis = currentState.elapsedTimeMillis
                 )
-                sessionDao.insertSession(session)
+                val sessionId = sessionDao.insertSession(session)
+
+                // Combine finished segments with the current active segment
+                val allSegments = if (currentState.currentSegmentStrides > 0) {
+                    currentState.segments + currentState.currentSegmentStrides
+                } else {
+                    currentState.segments
+                }
+
+                val segmentEntities = allSegments.mapIndexed { index, strideCount ->
+                    SegmentEntity(
+                        sessionId = sessionId,
+                        segmentIndex = index,
+                        strideCount = strideCount
+                    )
+                }
+
+                if (segmentEntities.isNotEmpty()) {
+                    sessionDao.insertSegments(segmentEntities)
+                }
             }
         }
     }

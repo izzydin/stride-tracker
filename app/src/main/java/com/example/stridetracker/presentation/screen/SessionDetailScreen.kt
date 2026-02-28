@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.stridetracker.data.local.SegmentEntity
 import com.example.stridetracker.data.local.SessionDao
 import com.example.stridetracker.data.local.SessionEntity
@@ -43,7 +44,7 @@ import java.util.Locale
 fun SessionDetailScreen(
     sessionId: Long,
     sessionDao: SessionDao,
-    onBack: () -> Unit,
+    navController: NavController,
     modifier: Modifier = Modifier,
     viewModel: SessionDetailViewModel = viewModel(
         factory = SessionDetailViewModelFactory(sessionDao)
@@ -62,7 +63,7 @@ fun SessionDetailScreen(
             TopAppBar(
                 title = { Text("Session Details") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"

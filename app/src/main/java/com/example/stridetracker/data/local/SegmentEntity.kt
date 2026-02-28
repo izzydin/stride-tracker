@@ -22,5 +22,7 @@ data class SegmentEntity(
     val id: Long = 0L,
     val sessionId: Long,
     val segmentIndex: Int,
-    val strideCount: Int
+    val strideCount: Int,
+    val startTimeNanos: Long,
+    val endTimeNanos: Long
 )

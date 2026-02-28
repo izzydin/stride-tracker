@@ -17,6 +17,8 @@ import androidx.navigation.navArgument
 import com.example.stridetracker.data.local.AppDatabase
 import com.example.stridetracker.data.local.SessionDao
 import com.example.stridetracker.data.local.AthleteDao
+import com.example.stridetracker.data.repository.SessionRepositoryImpl
+import com.example.stridetracker.domain.usecase.DeleteSessionUseCase
 import com.example.stridetracker.presentation.screen.MeasurementScreen
 import com.example.stridetracker.presentation.screen.SessionDetailScreen
 import com.example.stridetracker.presentation.screen.SessionHistoryScreen
@@ -31,17 +33,25 @@ class MainActivity : ComponentActivity() {
         val sessionDao = database.sessionDao()
         val athleteDao = database.athleteDao()
         
+        // Manual DI for simplicity in this project
+        val sessionRepository = SessionRepositoryImpl(sessionDao)
+        val deleteSessionUseCase = DeleteSessionUseCase(sessionRepository)
+        
         enableEdgeToEdge()
         setContent {
             StrideTrackerTheme {
-                StrideTrackerNavHost(sessionDao, athleteDao)
+                StrideTrackerNavHost(sessionDao, athleteDao, deleteSessionUseCase)
             }
         }
     }
 }
 
 @Composable
-fun StrideTrackerNavHost(sessionDao: SessionDao, athleteDao: AthleteDao) {
+fun StrideTrackerNavHost(
+    sessionDao: SessionDao, 
+    athleteDao: AthleteDao,
+    deleteSessionUseCase: DeleteSessionUseCase
+) {
     val navController = rememberNavController()
     
     NavHost(navController = navController, startDestination = "athletes") {
@@ -93,6 +103,7 @@ fun StrideTrackerNavHost(sessionDao: SessionDao, athleteDao: AthleteDao) {
             SessionDetailScreen(
                 sessionId = sessionId,
                 sessionDao = sessionDao,
+                deleteSessionUseCase = deleteSessionUseCase,
                 navController = navController
             )
         }

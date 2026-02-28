@@ -89,7 +89,11 @@ fun MeasurementScreen(
         },
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
             if (isLandscape) {
                 LandscapeMeasurementLayout(uiState, viewModel)
             } else {
@@ -121,12 +125,13 @@ private fun PortraitMeasurementLayout(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.weight(1f))
+        
         StatsSection(uiState)
 
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -135,6 +140,8 @@ private fun PortraitMeasurementLayout(
         ) {
             ControlButtons(uiState, viewModel)
         }
+        
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
@@ -147,9 +154,10 @@ private fun LandscapeMeasurementLayout(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceEvenly
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        Spacer(modifier = Modifier.weight(1f))
+
         // Left Side: Distance
         CircularButton(
             onClick = { viewModel.onDistanceClick() },
@@ -158,11 +166,13 @@ private fun LandscapeMeasurementLayout(
             enabled = uiState.isRunning
         )
 
+        Spacer(modifier = Modifier.weight(1f))
+
         // Center: Chronometer & Start/Stop
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(2f)
         ) {
             ChronometerDisplay(uiState.elapsedTimeMillis)
             
@@ -200,6 +210,8 @@ private fun LandscapeMeasurementLayout(
             )
         }
 
+        Spacer(modifier = Modifier.weight(1f))
+
         // Right Side: Stride
         CircularButton(
             onClick = { viewModel.onStrideClick() },
@@ -207,31 +219,35 @@ private fun LandscapeMeasurementLayout(
             text = "STRIDE",
             enabled = uiState.isRunning
         )
+
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
 @Composable
 private fun StatsSection(uiState: SessionState) {
-    ChronometerDisplay(uiState.elapsedTimeMillis)
-    
-    Spacer(modifier = Modifier.height(16.dp))
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        ChronometerDisplay(uiState.elapsedTimeMillis)
+        
+        Spacer(modifier = Modifier.height(16.dp))
 
-    Text(
-        text = "Total Strides: ${uiState.totalStrides}",
-        style = MaterialTheme.typography.headlineMedium
-    )
-    Text(
-        text = "Current Segment: ${uiState.currentSegmentStrides}",
-        style = MaterialTheme.typography.headlineSmall,
-        color = MaterialTheme.colorScheme.secondary
-    )
-    Text(
-        text = if (uiState.isRunning) "RUNNING" else "STOPPED",
-        style = MaterialTheme.typography.labelLarge,
-        fontWeight = FontWeight.Bold,
-        color = if (uiState.isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-        modifier = Modifier.padding(top = 8.dp)
-    )
+        Text(
+            text = "Total Strides: ${uiState.totalStrides}",
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = "Current Segment: ${uiState.currentSegmentStrides}",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.secondary
+        )
+        Text(
+            text = if (uiState.isRunning) "RUNNING" else "STOPPED",
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold,
+            color = if (uiState.isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+    }
 }
 
 @Composable

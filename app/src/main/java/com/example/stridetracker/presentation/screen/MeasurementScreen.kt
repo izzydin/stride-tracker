@@ -53,6 +53,7 @@ fun MeasurementScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     Scaffold(
         topBar = {
@@ -79,17 +80,17 @@ fun MeasurementScreen(
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
-            if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                MeasurementLandscape(uiState, viewModel)
+            if (isLandscape) {
+                LandscapeMeasurementLayout(uiState, viewModel)
             } else {
-                MeasurementPortrait(uiState, viewModel)
+                PortraitMeasurementLayout(uiState, viewModel)
             }
         }
     }
 }
 
 @Composable
-private fun MeasurementPortrait(
+private fun PortraitMeasurementLayout(
     uiState: SessionState,
     viewModel: MeasurementViewModel
 ) {
@@ -114,7 +115,7 @@ private fun MeasurementPortrait(
 }
 
 @Composable
-private fun MeasurementLandscape(
+private fun LandscapeMeasurementLayout(
     uiState: SessionState,
     viewModel: MeasurementViewModel
 ) {

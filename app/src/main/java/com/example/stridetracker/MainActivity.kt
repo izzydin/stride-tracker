@@ -17,6 +17,10 @@ import androidx.navigation.navArgument
 import com.example.stridetracker.data.local.AppDatabase
 import com.example.stridetracker.data.local.SessionDao
 import com.example.stridetracker.data.local.AthleteDao
+import com.example.stridetracker.data.repository.AthleteRepositoryImpl
+import com.example.stridetracker.data.repository.SessionRepositoryImpl
+import com.example.stridetracker.domain.usecase.DeleteAthleteUseCase
+import com.example.stridetracker.domain.usecase.DeleteSessionUseCase
 import com.example.stridetracker.presentation.screen.MeasurementScreen
 import com.example.stridetracker.presentation.screen.SessionDetailScreen
 import com.example.stridetracker.presentation.screen.SessionHistoryScreen
@@ -31,17 +35,29 @@ class MainActivity : ComponentActivity() {
         val sessionDao = database.sessionDao()
         val athleteDao = database.athleteDao()
         
+        // Manual DI for simplicity in this project
+        val sessionRepository = SessionRepositoryImpl(sessionDao)
+        val deleteSessionUseCase = DeleteSessionUseCase(sessionRepository)
+        
+        val athleteRepository = AthleteRepositoryImpl(athleteDao)
+        val deleteAthleteUseCase = DeleteAthleteUseCase(athleteRepository)
+        
         enableEdgeToEdge()
         setContent {
             StrideTrackerTheme {
-                StrideTrackerNavHost(sessionDao, athleteDao)
+                StrideTrackerNavHost(sessionDao, athleteDao, deleteSessionUseCase, deleteAthleteUseCase)
             }
         }
     }
 }
 
 @Composable
-fun StrideTrackerNavHost(sessionDao: SessionDao, athleteDao: AthleteDao) {
+fun StrideTrackerNavHost(
+    sessionDao: SessionDao, 
+    athleteDao: AthleteDao,
+    deleteSessionUseCase: DeleteSessionUseCase,
+    deleteAthleteUseCase: DeleteAthleteUseCase
+) {
     val navController = rememberNavController()
     
     NavHost(navController = navController, startDestination = "athletes") {
@@ -49,6 +65,7 @@ fun StrideTrackerNavHost(sessionDao: SessionDao, athleteDao: AthleteDao) {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                 AthleteListScreen(
                     athleteDao = athleteDao,
+                    deleteAthleteUseCase = deleteAthleteUseCase,
                     onAthleteClick = { athleteId -> 
                         navController.navigate("history/$athleteId")
                     },
@@ -93,6 +110,7 @@ fun StrideTrackerNavHost(sessionDao: SessionDao, athleteDao: AthleteDao) {
             SessionDetailScreen(
                 sessionId = sessionId,
                 sessionDao = sessionDao,
+                deleteSessionUseCase = deleteSessionUseCase,
                 navController = navController
             )
         }

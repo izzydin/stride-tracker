@@ -38,8 +38,8 @@ class MeasurementViewModel(
                 while (true) {
                     val currentElapsedMillis = (SystemClock.elapsedRealtimeNanos() - startTimeNanos) / 1_000_000L
                     _uiState.update { it.copy(elapsedTimeMillis = currentElapsedMillis) }
-                    // 16ms delay targets roughly 60fps for smooth UI updates
-                    delay(16)
+                    // Update every 50ms for centisecond precision display (20Hz)
+                    delay(50)
                 }
             }
         } else {

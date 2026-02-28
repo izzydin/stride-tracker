@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -116,7 +118,10 @@ private fun ChronometerDisplay(
             fontWeight = FontWeight.Bold
         ),
         textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        maxLines = 1,
+        softWrap = false,
+        overflow = TextOverflow.Clip
     )
 }
 
@@ -177,24 +182,31 @@ private fun LandscapeMeasurementLayout(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceEvenly
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Left Side: Distance
-        MeasurementButton(
-            onClick = { viewModel.onDistanceClick() },
-            icon = Icons.Default.Straighten,
-            label = "DIST",
-            enabled = uiState.isRunning
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        // Center: Chronometer & Start/Stop
+        // Left Column
         Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.weight(1.5f)
+            verticalArrangement = Arrangement.Center
+        ) {
+            MeasurementButton(
+                onClick = { viewModel.onDistanceClick() },
+                icon = Icons.Default.Straighten,
+                label = "DIST",
+                enabled = uiState.isRunning
+            )
+        }
+
+        // Center Column (Dominant)
+        Column(
+            modifier = Modifier
+                .weight(2f)
+                .fillMaxHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             ChronometerDisplay(
                 elapsedTimeMillis = uiState.elapsedTimeMillis,
@@ -206,7 +218,8 @@ private fun LandscapeMeasurementLayout(
             Text(
                 text = "Total: ${uiState.totalStrides} | Segment: ${uiState.currentSegmentStrides}",
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.secondary
+                color = MaterialTheme.colorScheme.secondary,
+                textAlign = TextAlign.Center
             )
             Text(
                 text = if (uiState.isRunning) "RUNNING" else "STOPPED",
@@ -235,43 +248,21 @@ private fun LandscapeMeasurementLayout(
             )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        // Right Side: Stride
-        MeasurementButton(
-            onClick = { viewModel.onStrideClick() },
-            icon = Icons.Default.DirectionsRun,
-            label = "STRIDE",
-            enabled = uiState.isRunning
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-    }
-}
-
-@Composable
-private fun StatsSection(uiState: SessionState) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        ChronometerDisplay(uiState.elapsedTimeMillis)
-        
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Total Strides: ${uiState.totalStrides}",
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Text(
-            text = "Current Segment: ${uiState.currentSegmentStrides}",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.secondary
-        )
-        Text(
-            text = if (uiState.isRunning) "RUNNING" else "STOPPED",
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-            color = if (uiState.isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-            modifier = Modifier.padding(top = 8.dp)
-        )
+        // Right Column
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            MeasurementButton(
+                onClick = { viewModel.onStrideClick() },
+                icon = Icons.Default.DirectionsRun,
+                label = "STRIDE",
+                enabled = uiState.isRunning
+            )
+        }
     }
 }
 
@@ -352,7 +343,7 @@ private fun MeasurementButton(
 private fun formatElapsedTime(millis: Long): String {
     val minutes = millis / 60000
     val seconds = (millis % 60000) / 1000
-    val milliseconds = millis % 1000
+    val centiseconds = (millis % 1000) / 10
 
-    return String.format(Locale.getDefault(), "%02d:%02d.%03d", minutes, seconds, milliseconds)
+    return String.format(Locale.getDefault(), "%02d:%02d.%02d", minutes, seconds, centiseconds)
 }

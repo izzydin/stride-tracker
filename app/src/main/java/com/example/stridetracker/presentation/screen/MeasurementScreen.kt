@@ -159,10 +159,10 @@ private fun LandscapeMeasurementLayout(
         Spacer(modifier = Modifier.weight(1f))
 
         // Left Side: Distance
-        CircularButton(
+        MeasurementButton(
             onClick = { viewModel.onDistanceClick() },
             icon = Icons.Default.Straighten,
-            text = "DIST",
+            label = "DIST",
             enabled = uiState.isRunning
         )
 
@@ -192,10 +192,10 @@ private fun LandscapeMeasurementLayout(
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            CircularButton(
+            MeasurementButton(
                 onClick = { viewModel.onStartStop() },
                 icon = if (uiState.isRunning) Icons.Default.Stop else Icons.Default.PlayArrow,
-                text = if (uiState.isRunning) "STOP" else "START",
+                label = if (uiState.isRunning) "STOP" else "START",
                 colors = if (uiState.isRunning) {
                     ButtonDefaults.filledTonalButtonColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -213,10 +213,10 @@ private fun LandscapeMeasurementLayout(
         Spacer(modifier = Modifier.weight(1f))
 
         // Right Side: Stride
-        CircularButton(
+        MeasurementButton(
             onClick = { viewModel.onStrideClick() },
             icon = Icons.Default.DirectionsRun,
-            text = "STRIDE",
+            label = "STRIDE",
             enabled = uiState.isRunning
         )
 
@@ -255,17 +255,17 @@ private fun ControlButtons(
     uiState: SessionState,
     viewModel: MeasurementViewModel
 ) {
-    CircularButton(
+    MeasurementButton(
         onClick = { viewModel.onDistanceClick() },
         icon = Icons.Default.Straighten,
-        text = "DIST",
+        label = "DIST",
         enabled = uiState.isRunning
     )
 
-    CircularButton(
+    MeasurementButton(
         onClick = { viewModel.onStartStop() },
         icon = if (uiState.isRunning) Icons.Default.Stop else Icons.Default.PlayArrow,
-        text = if (uiState.isRunning) "STOP" else "START",
+        label = if (uiState.isRunning) "STOP" else "START",
         colors = if (uiState.isRunning) {
             ButtonDefaults.filledTonalButtonColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -279,19 +279,19 @@ private fun ControlButtons(
         }
     )
 
-    CircularButton(
+    MeasurementButton(
         onClick = { viewModel.onStrideClick() },
         icon = Icons.Default.DirectionsRun,
-        text = "STRIDE",
+        label = "STRIDE",
         enabled = uiState.isRunning
     )
 }
 
 @Composable
-private fun CircularButton(
-    onClick: () -> Unit,
+private fun MeasurementButton(
     icon: ImageVector,
-    text: String,
+    label: String,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: ButtonColors = ButtonDefaults.filledTonalButtonColors()
@@ -316,7 +316,7 @@ private fun CircularButton(
                 modifier = Modifier.size(24.dp)
             )
             Text(
-                text = text, 
+                text = label,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold
             )

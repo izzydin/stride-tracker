@@ -125,25 +125,70 @@ private fun LandscapeMeasurementLayout(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Left Column: Distance Button
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight(),
+            modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            StatsSection(uiState)
+            Button(
+                onClick = { viewModel.onDistanceClick() },
+                modifier = Modifier.fillMaxWidth().height(80.dp).padding(horizontal = 8.dp),
+                enabled = uiState.isRunning
+            ) {
+                Text("DISTANCE", style = MaterialTheme.typography.titleMedium)
+            }
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
-
+        // Center Column: Chronometer, Stats, and Start/Stop
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight(),
-            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
+            modifier = Modifier.weight(1.5f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            ControlButtons(uiState, viewModel, Modifier.fillMaxWidth().height(80.dp))
+            Text(
+                text = formatElapsedTime(uiState.elapsedTimeMillis),
+                style = MaterialTheme.typography.displayLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "Total: ${uiState.totalStrides} | Segment: ${uiState.currentSegmentStrides}",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.secondary
+            )
+            Text(
+                text = if (uiState.isRunning) "RUNNING" else "STOPPED",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = if (uiState.isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            Button(
+                onClick = { viewModel.onStartStop() },
+                modifier = Modifier.fillMaxWidth(0.8f).height(64.dp),
+                colors = if (uiState.isRunning) {
+                    ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer)
+                } else {
+                    ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
+                }
+            ) {
+                Text(if (uiState.isRunning) "STOP" else "START", style = MaterialTheme.typography.titleMedium)
+            }
+        }
+
+        // Right Column: Stride Button
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Button(
+                onClick = { viewModel.onStrideClick() },
+                modifier = Modifier.fillMaxWidth().height(80.dp).padding(horizontal = 8.dp),
+                enabled = uiState.isRunning
+            ) {
+                Text("STRIDE", style = MaterialTheme.typography.titleMedium)
+            }
         }
     }
 }

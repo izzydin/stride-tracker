@@ -16,4 +16,7 @@ interface AthleteDao {
 
     @Query("SELECT * FROM athletes WHERE id = :id")
     fun getAthleteById(id: Long): Flow<AthleteEntity?>
+
+    @Query("DELETE FROM athletes WHERE id = :id")
+    suspend fun deleteAthleteById(id: Long)
 }

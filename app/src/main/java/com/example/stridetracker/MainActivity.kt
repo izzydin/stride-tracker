@@ -50,7 +50,7 @@ fun StrideTrackerNavHost(sessionDao: SessionDao, athleteDao: AthleteDao) {
                 AthleteListScreen(
                     athleteDao = athleteDao,
                     onAthleteClick = { athleteId -> 
-                        navController.navigate("measurement/$athleteId")
+                        navController.navigate("history/$athleteId")
                     },
                     modifier = Modifier.padding(innerPadding)
                 )
@@ -82,6 +82,9 @@ fun StrideTrackerNavHost(sessionDao: SessionDao, athleteDao: AthleteDao) {
                     onBack = { navController.popBackStack() },
                     onSessionClick = { sessionId -> 
                         navController.navigate("detail/$sessionId")
+                    },
+                    onStartNewSession = {
+                        navController.navigate("measurement/$athleteId")
                     },
                     modifier = Modifier.padding(innerPadding)
                 )

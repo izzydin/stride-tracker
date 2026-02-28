@@ -37,7 +37,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -98,6 +100,19 @@ fun MeasurementScreen(
 }
 
 @Composable
+private fun ChronometerDisplay(elapsedTimeMillis: Long) {
+    Text(
+        text = formatElapsedTime(elapsedTimeMillis),
+        style = MaterialTheme.typography.displayMedium.copy(
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.Bold
+        ),
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
 private fun PortraitMeasurementLayout(
     uiState: SessionState,
     viewModel: MeasurementViewModel
@@ -149,17 +164,24 @@ private fun LandscapeMeasurementLayout(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.weight(1f)
         ) {
-            Text(
-                text = formatElapsedTime(uiState.elapsedTimeMillis),
-                style = MaterialTheme.typography.displayLarge,
-                fontWeight = FontWeight.Bold
-            )
+            ChronometerDisplay(uiState.elapsedTimeMillis)
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
             Text(
                 text = "Strides: ${uiState.totalStrides}",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.secondary
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = if (uiState.isRunning) "RUNNING" else "STOPPED",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = if (uiState.isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+            )
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
             CircularButton(
                 onClick = { viewModel.onStartStop() },
                 icon = if (uiState.isRunning) Icons.Default.Stop else Icons.Default.PlayArrow,
@@ -190,12 +212,10 @@ private fun LandscapeMeasurementLayout(
 
 @Composable
 private fun StatsSection(uiState: SessionState) {
-    Text(
-        text = formatElapsedTime(uiState.elapsedTimeMillis),
-        style = MaterialTheme.typography.displayLarge,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(bottom = 8.dp)
-    )
+    ChronometerDisplay(uiState.elapsedTimeMillis)
+    
+    Spacer(modifier = Modifier.height(16.dp))
+
     Text(
         text = "Total Strides: ${uiState.totalStrides}",
         style = MaterialTheme.typography.headlineMedium

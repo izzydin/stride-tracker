@@ -12,8 +12,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,12 +40,14 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionHistoryScreen(
+    athleteId: Long,
     sessionDao: SessionDao,
     onBack: () -> Unit,
     onSessionClick: (Long) -> Unit,
+    onStartNewSession: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SessionHistoryViewModel = viewModel(
-        factory = SessionHistoryViewModelFactory(sessionDao)
+        factory = SessionHistoryViewModelFactory(athleteId, sessionDao)
     )
 ) {
     val sessions by viewModel.sessions.collectAsState()
@@ -61,6 +65,11 @@ fun SessionHistoryScreen(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = onStartNewSession) {
+                Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Start Session")
+            }
         },
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->

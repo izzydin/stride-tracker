@@ -2,16 +2,15 @@ package com.example.stridetracker.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.stridetracker.data.local.SessionDao
+import com.example.stridetracker.data.local.AthleteDao
 
-class SessionHistoryViewModelFactory(
-    private val athleteId: Long,
-    private val sessionDao: SessionDao
+class AthleteListViewModelFactory(
+    private val athleteDao: AthleteDao
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(SessionHistoryViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(AthleteListViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return SessionHistoryViewModel(athleteId, sessionDao) as T
+            return AthleteListViewModel(athleteDao) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

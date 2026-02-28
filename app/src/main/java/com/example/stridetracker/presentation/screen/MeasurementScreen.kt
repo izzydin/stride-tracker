@@ -36,11 +36,12 @@ import java.util.Locale
 
 @Composable
 fun MeasurementScreen(
+    athleteId: Long,
     sessionDao: SessionDao,
     onNavigateToHistory: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MeasurementViewModel = viewModel(
-        factory = MeasurementViewModelFactory(sessionDao)
+        factory = MeasurementViewModelFactory(athleteId, sessionDao)
     )
 ) {
     val uiState by viewModel.uiState.collectAsState()

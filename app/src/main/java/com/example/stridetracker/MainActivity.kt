@@ -16,9 +16,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.stridetracker.data.local.AppDatabase
 import com.example.stridetracker.data.local.SessionDao
+import com.example.stridetracker.data.local.AthleteDao
 import com.example.stridetracker.presentation.screen.MeasurementScreen
 import com.example.stridetracker.presentation.screen.SessionDetailScreen
 import com.example.stridetracker.presentation.screen.SessionHistoryScreen
+import com.example.stridetracker.presentation.screen.AthleteListScreen
 import com.example.stridetracker.ui.theme.StrideTrackerTheme
 
 class MainActivity : ComponentActivity() {
@@ -27,37 +29,62 @@ class MainActivity : ComponentActivity() {
         
         val database = AppDatabase.getDatabase(this)
         val sessionDao = database.sessionDao()
+        val athleteDao = database.athleteDao()
         
         enableEdgeToEdge()
         setContent {
             StrideTrackerTheme {
-                StrideTrackerNavHost(sessionDao)
+                StrideTrackerNavHost(sessionDao, athleteDao)
             }
         }
     }
 }
 
 @Composable
-fun StrideTrackerNavHost(sessionDao: SessionDao) {
+fun StrideTrackerNavHost(sessionDao: SessionDao, athleteDao: AthleteDao) {
     val navController = rememberNavController()
     
-    NavHost(navController = navController, startDestination = "measurement") {
-        composable("measurement") {
+    NavHost(navController = navController, startDestination = "athletes") {
+        composable("athletes") {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                MeasurementScreen(
-                    sessionDao = sessionDao,
-                    onNavigateToHistory = { navController.navigate("history") },
+                AthleteListScreen(
+                    athleteDao = athleteDao,
+                    onAthleteClick = { athleteId -> 
+                        navController.navigate("history/$athleteId")
+                    },
                     modifier = Modifier.padding(innerPadding)
                 )
             }
         }
-        composable("history") {
+        composable(
+            route = "measurement/{athleteId}",
+            arguments = listOf(navArgument("athleteId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val athleteId = backStackEntry.arguments?.getLong("athleteId") ?: 0L
+            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                MeasurementScreen(
+                    athleteId = athleteId,
+                    sessionDao = sessionDao,
+                    onNavigateToHistory = { navController.navigate("history/$athleteId") },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+        }
+        composable(
+            route = "history/{athleteId}",
+            arguments = listOf(navArgument("athleteId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val athleteId = backStackEntry.arguments?.getLong("athleteId") ?: 0L
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                 SessionHistoryScreen(
+                    athleteId = athleteId,
                     sessionDao = sessionDao,
                     onBack = { navController.popBackStack() },
                     onSessionClick = { sessionId -> 
                         navController.navigate("detail/$sessionId")
+                    },
+                    onStartNewSession = {
+                        navController.navigate("measurement/$athleteId")
                     },
                     modifier = Modifier.padding(innerPadding)
                 )

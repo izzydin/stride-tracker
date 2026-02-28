@@ -23,5 +23,6 @@ data class SessionEntity(
     val athleteId: Long,
     val date: Long,
     val totalStrides: Int,
-    val elapsedTimeMillis: Long
+    val elapsedTimeMillis: Long,
+    val startTimeNanos: Long
 )

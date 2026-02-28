@@ -45,6 +45,7 @@ import com.example.stridetracker.data.local.SessionEntity
 import com.example.stridetracker.domain.usecase.DeleteSessionUseCase
 import com.example.stridetracker.presentation.viewmodel.SessionDetailViewModel
 import com.example.stridetracker.presentation.viewmodel.SessionDetailViewModelFactory
+import com.example.stridetracker.util.formatRelativeTime
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -127,7 +128,7 @@ fun SessionDetailScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         items(segments) { segment ->
-                            SegmentListItem(segment)
+                            SegmentListItem(segment, currentSession.startTimeNanos)
                         }
                     }
                     
@@ -213,23 +214,34 @@ private fun SessionHeader(session: SessionEntity) {
 }
 
 @Composable
-private fun SegmentListItem(segment: SegmentEntity) {
+private fun SegmentListItem(segment: SegmentEntity, sessionStartNanos: Long) {
+    val relativeStart = formatRelativeTime(segment.startTimeNanos, sessionStartNanos)
+    val relativeEnd = formatRelativeTime(segment.endTimeNanos, sessionStartNanos)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp)
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Segment ${segment.segmentIndex + 1}",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+        ) {
             Text(
-                text = "Segment ${segment.segmentIndex + 1}",
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f)
+                text = "$relativeStart → $relativeEnd",
+                style = MaterialTheme.typography.bodyMedium,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
             )
             Text(
                 text = "${segment.strideCount} strides",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary
+                fontWeight = FontWeight.Medium
             )
         }
         HorizontalDivider(
@@ -246,14 +258,9 @@ private fun formatDate(timestamp: Long): String {
 }
 
 private fun formatElapsedTime(millis: Long): String {
-    val seconds = (millis / 1000) % 60
-    val minutes = (millis / (1000 * 60)) % 60
-    val hours = (millis / (1000 * 60 * 60))
-    val tenths = (millis / 100) % 10
+    val minutes = millis / 60000
+    val seconds = (millis % 60000) / 1000
+    val centiseconds = (millis % 1000) / 10
 
-    return if (hours > 0) {
-        String.format(Locale.getDefault(), "%02d:%02d:%02d.%d", hours, minutes, seconds, tenths)
-    } else {
-        String.format(Locale.getDefault(), "%02d:%02d.%d", minutes, seconds, tenths)
-    }
+    return String.format(Locale.getDefault(), "%02d:%02d.%02d", minutes, seconds, centiseconds)
 }

@@ -143,14 +143,9 @@ private fun formatDate(timestamp: Long): String {
 }
 
 private fun formatElapsedTime(millis: Long): String {
-    val seconds = (millis / 1000) % 60
-    val minutes = (millis / (1000 * 60)) % 60
-    val hours = (millis / (1000 * 60 * 60))
-    val tenths = (millis / 100) % 10
+    val minutes = millis / 60000
+    val seconds = (millis % 60000) / 1000
+    val centiseconds = (millis % 1000) / 10
 
-    return if (hours > 0) {
-        String.format(Locale.getDefault(), "%02d:%02d:%02d.%d", hours, minutes, seconds, tenths)
-    } else {
-        String.format(Locale.getDefault(), "%02d:%02d.%d", minutes, seconds, tenths)
-    }
+    return String.format(Locale.getDefault(), "%02d:%02d.%02d", minutes, seconds, centiseconds)
 }

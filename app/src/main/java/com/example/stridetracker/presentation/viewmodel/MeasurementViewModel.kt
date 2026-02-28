@@ -36,15 +36,17 @@ class MeasurementViewModel(
 
         if (isStarting) {
             if (_uiState.value.elapsedTimeMillis == 0L) {
-                // First start
+                // First start: Initialize session origin and first segment origin
                 startTimeNanos = now
                 _uiState.update { it.copy(
                     startTimeNanos = now,
                     currentSegmentStartTimeNanos = now
                 ) }
             } else {
-                // Resume
+                // Resume: Re-calculate the "virtual" start time to exclude pause duration
                 startTimeNanos = now - (_uiState.value.elapsedTimeMillis * 1_000_000L)
+                // We keep the original session origin in the state for relative calculations,
+                // but local startTimeNanos is used for the real-time chronometer calculation.
             }
             
             timerJob = viewModelScope.launch {
@@ -76,9 +78,16 @@ class MeasurementViewModel(
 
                 val now = SystemClock.elapsedRealtimeNanos()
                 val finalSegments = if (currentState.currentSegmentStrides > 0) {
+                    // Ensure first segment always matches session start
+                    val segmentStart = if (currentState.segments.isEmpty()) {
+                        currentState.startTimeNanos
+                    } else {
+                        currentState.currentSegmentStartTimeNanos
+                    }
+                    
                     currentState.segments + Segment(
                         strideCount = currentState.currentSegmentStrides,
-                        startTimeNanos = currentState.currentSegmentStartTimeNanos,
+                        startTimeNanos = segmentStart,
                         endTimeNanos = now
                     )
                 } else {
@@ -117,10 +126,17 @@ class MeasurementViewModel(
         if (_uiState.value.isRunning) {
             val now = SystemClock.elapsedRealtimeNanos()
             _uiState.update {
+                // Ensure first segment always matches session start
+                val segmentStart = if (it.segments.isEmpty()) {
+                    it.startTimeNanos
+                } else {
+                    it.currentSegmentStartTimeNanos
+                }
+                
                 it.copy(
                     segments = it.segments + Segment(
                         strideCount = it.currentSegmentStrides,
-                        startTimeNanos = it.currentSegmentStartTimeNanos,
+                        startTimeNanos = segmentStart,
                         endTimeNanos = now
                     ),
                     currentSegmentStrides = 0,

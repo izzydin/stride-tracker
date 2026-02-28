@@ -12,13 +12,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,16 +32,19 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.stridetracker.data.local.SessionDao
 import com.example.stridetracker.domain.model.SessionState
 import com.example.stridetracker.presentation.viewmodel.MeasurementViewModel
 import com.example.stridetracker.presentation.viewmodel.MeasurementViewModelFactory
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MeasurementScreen(
     athleteId: Long,
     sessionDao: SessionDao,
+    navController: NavController,
     onNavigateToHistory: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: MeasurementViewModel = viewModel(
@@ -47,22 +54,36 @@ fun MeasurementScreen(
     val uiState by viewModel.uiState.collectAsState()
     val configuration = LocalConfiguration.current
 
-    Column(modifier = modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            IconButton(onClick = onNavigateToHistory) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.List, contentDescription = "History")
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Measurement") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onNavigateToHistory) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.List,
+                            contentDescription = "History"
+                        )
+                    }
+                }
+            )
+        },
+        modifier = modifier.fillMaxSize()
+    ) { innerPadding ->
+        Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+            if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                MeasurementLandscape(uiState, viewModel)
+            } else {
+                MeasurementPortrait(uiState, viewModel)
             }
-        }
-
-        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            MeasurementLandscape(uiState, viewModel)
-        } else {
-            MeasurementPortrait(uiState, viewModel)
         }
     }
 }

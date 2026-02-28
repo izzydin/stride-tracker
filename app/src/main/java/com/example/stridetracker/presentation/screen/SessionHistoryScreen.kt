@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.stridetracker.data.local.SessionDao
 import com.example.stridetracker.data.local.SessionEntity
 import com.example.stridetracker.presentation.viewmodel.SessionHistoryViewModel
@@ -42,7 +43,7 @@ import java.util.Locale
 fun SessionHistoryScreen(
     athleteId: Long,
     sessionDao: SessionDao,
-    onBack: () -> Unit,
+    navController: NavController,
     onSessionClick: (Long) -> Unit,
     onStartNewSession: () -> Unit,
     modifier: Modifier = Modifier,
@@ -57,7 +58,7 @@ fun SessionHistoryScreen(
             TopAppBar(
                 title = { Text("Session History") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"

@@ -61,48 +61,40 @@ fun StrideTrackerNavHost(sessionDao: SessionDao, athleteDao: AthleteDao) {
             arguments = listOf(navArgument("athleteId") { type = NavType.LongType })
         ) { backStackEntry ->
             val athleteId = backStackEntry.arguments?.getLong("athleteId") ?: 0L
-            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                MeasurementScreen(
-                    athleteId = athleteId,
-                    sessionDao = sessionDao,
-                    onNavigateToHistory = { navController.navigate("history/$athleteId") },
-                    modifier = Modifier.padding(innerPadding)
-                )
-            }
+            MeasurementScreen(
+                athleteId = athleteId,
+                sessionDao = sessionDao,
+                navController = navController,
+                onNavigateToHistory = { navController.navigate("history/$athleteId") }
+            )
         }
         composable(
             route = "history/{athleteId}",
             arguments = listOf(navArgument("athleteId") { type = NavType.LongType })
         ) { backStackEntry ->
             val athleteId = backStackEntry.arguments?.getLong("athleteId") ?: 0L
-            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                SessionHistoryScreen(
-                    athleteId = athleteId,
-                    sessionDao = sessionDao,
-                    onBack = { navController.popBackStack() },
-                    onSessionClick = { sessionId -> 
-                        navController.navigate("detail/$sessionId")
-                    },
-                    onStartNewSession = {
-                        navController.navigate("measurement/$athleteId")
-                    },
-                    modifier = Modifier.padding(innerPadding)
-                )
-            }
+            SessionHistoryScreen(
+                athleteId = athleteId,
+                sessionDao = sessionDao,
+                navController = navController,
+                onSessionClick = { sessionId -> 
+                    navController.navigate("detail/$sessionId")
+                },
+                onStartNewSession = {
+                    navController.navigate("measurement/$athleteId")
+                }
+            )
         }
         composable(
             route = "detail/{sessionId}",
             arguments = listOf(navArgument("sessionId") { type = NavType.LongType })
         ) { backStackEntry ->
             val sessionId = backStackEntry.arguments?.getLong("sessionId") ?: 0L
-            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                SessionDetailScreen(
-                    sessionId = sessionId,
-                    sessionDao = sessionDao,
-                    onBack = { navController.popBackStack() },
-                    modifier = Modifier.padding(innerPadding)
-                )
-            }
+            SessionDetailScreen(
+                sessionId = sessionId,
+                sessionDao = sessionDao,
+                navController = navController
+            )
         }
     }
 }

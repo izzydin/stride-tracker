@@ -37,7 +37,8 @@ class MeasurementViewModel(
                 while (true) {
                     val currentElapsed = System.currentTimeMillis() - startTime
                     _uiState.update { it.copy(elapsedTimeMillis = currentElapsed) }
-                    delay(100)
+                    // Update every 16ms to support smooth millisecond precision (~60 FPS)
+                    delay(16)
                 }
             }
         } else {

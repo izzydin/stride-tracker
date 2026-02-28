@@ -188,6 +188,8 @@ private fun LandscapeMeasurementLayout(
             enabled = uiState.isRunning
         )
 
+        Spacer(modifier = Modifier.weight(1f))
+
         // Center: Chronometer & Start/Stop
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -233,12 +235,42 @@ private fun LandscapeMeasurementLayout(
             )
         }
 
+        Spacer(modifier = Modifier.weight(1f))
+
         // Right Side: Stride
         MeasurementButton(
             onClick = { viewModel.onStrideClick() },
             icon = Icons.Default.DirectionsRun,
             label = "STRIDE",
             enabled = uiState.isRunning
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun StatsSection(uiState: SessionState) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        ChronometerDisplay(uiState.elapsedTimeMillis)
+        
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Total Strides: ${uiState.totalStrides}",
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = "Current Segment: ${uiState.currentSegmentStrides}",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.secondary
+        )
+        Text(
+            text = if (uiState.isRunning) "RUNNING" else "STOPPED",
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold,
+            color = if (uiState.isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(top = 8.dp)
         )
     }
 }
@@ -318,14 +350,9 @@ private fun MeasurementButton(
 }
 
 private fun formatElapsedTime(millis: Long): String {
-    val seconds = (millis / 1000) % 60
-    val minutes = (millis / (1000 * 60)) % 60
-    val hours = (millis / (1000 * 60 * 60))
-    val tenths = (millis / 100) % 10
+    val minutes = millis / 60000
+    val seconds = (millis % 60000) / 1000
+    val milliseconds = millis % 1000
 
-    return if (hours > 0) {
-        String.format(Locale.getDefault(), "%02d:%02d:%02d.%d", hours, minutes, seconds, tenths)
-    } else {
-        String.format(Locale.getDefault(), "%02d:%02d.%d", minutes, seconds, tenths)
-    }
+    return String.format(Locale.getDefault(), "%02d:%02d.%03d", minutes, seconds, milliseconds)
 }

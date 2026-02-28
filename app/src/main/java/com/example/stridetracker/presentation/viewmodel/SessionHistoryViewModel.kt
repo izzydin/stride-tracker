@@ -9,10 +9,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 class SessionHistoryViewModel(
+    athleteId: Long,
     sessionDao: SessionDao
 ) : ViewModel() {
 
-    val sessions: StateFlow<List<SessionEntity>> = sessionDao.getAllSessions()
+    val sessions: StateFlow<List<SessionEntity>> = sessionDao.getSessionsForAthlete(athleteId)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),

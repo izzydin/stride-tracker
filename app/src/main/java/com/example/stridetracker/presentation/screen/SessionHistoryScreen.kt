@@ -38,12 +38,13 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionHistoryScreen(
+    athleteId: Long,
     sessionDao: SessionDao,
     onBack: () -> Unit,
     onSessionClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SessionHistoryViewModel = viewModel(
-        factory = SessionHistoryViewModelFactory(sessionDao)
+        factory = SessionHistoryViewModelFactory(athleteId, sessionDao)
     )
 ) {
     val sessions by viewModel.sessions.collectAsState()

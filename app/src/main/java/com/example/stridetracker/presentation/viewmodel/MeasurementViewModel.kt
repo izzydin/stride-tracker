@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MeasurementViewModel(
+    private val athleteId: Long,
     private val sessionDao: SessionDao
 ) : ViewModel() {
 
@@ -54,6 +55,7 @@ class MeasurementViewModel(
         if (currentState.totalStrides > 0 || currentState.elapsedTimeMillis > 0) {
             viewModelScope.launch(Dispatchers.IO) {
                 val session = SessionEntity(
+                    athleteId = athleteId,
                     date = System.currentTimeMillis(),
                     totalStrides = currentState.totalStrides,
                     elapsedTimeMillis = currentState.elapsedTimeMillis

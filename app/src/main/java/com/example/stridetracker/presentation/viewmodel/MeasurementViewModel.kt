@@ -45,8 +45,6 @@ class MeasurementViewModel(
             } else {
                 // Resume: Re-calculate the "virtual" start time to exclude pause duration
                 startTimeNanos = now - (_uiState.value.elapsedTimeMillis * 1_000_000L)
-                // We keep the original session origin in the state for relative calculations,
-                // but local startTimeNanos is used for the real-time chronometer calculation.
             }
             
             timerJob = viewModelScope.launch {
@@ -59,11 +57,11 @@ class MeasurementViewModel(
         } else {
             timerJob?.cancel()
             timerJob = null
-            saveSession()
+            saveSession(now)
         }
     }
 
-    private fun saveSession() {
+    private fun saveSession(stopTimeNanos: Long) {
         val currentState = _uiState.value
         if (currentState.totalStrides > 0 || currentState.elapsedTimeMillis > 0) {
             viewModelScope.launch(Dispatchers.IO) {
@@ -76,23 +74,18 @@ class MeasurementViewModel(
                 )
                 val sessionId = sessionDao.insertSession(session)
 
-                val now = SystemClock.elapsedRealtimeNanos()
-                val finalSegments = if (currentState.currentSegmentStrides > 0) {
-                    // Ensure first segment always matches session start
-                    val segmentStart = if (currentState.segments.isEmpty()) {
-                        currentState.startTimeNanos
-                    } else {
-                        currentState.currentSegmentStartTimeNanos
-                    }
-                    
-                    currentState.segments + Segment(
-                        strideCount = currentState.currentSegmentStrides,
-                        startTimeNanos = segmentStart,
-                        endTimeNanos = now
-                    )
+                // Finalize the current in-progress segment using the session stop time
+                val segmentStart = if (currentState.segments.isEmpty()) {
+                    currentState.startTimeNanos
                 } else {
-                    currentState.segments
+                    currentState.currentSegmentStartTimeNanos
                 }
+                
+                val finalSegments = currentState.segments + Segment(
+                    strideCount = currentState.currentSegmentStrides,
+                    startTimeNanos = segmentStart,
+                    endTimeNanos = stopTimeNanos
+                )
 
                 val segmentEntities = finalSegments.mapIndexed { index, segment ->
                     SegmentEntity(
@@ -126,7 +119,6 @@ class MeasurementViewModel(
         if (_uiState.value.isRunning) {
             val now = SystemClock.elapsedRealtimeNanos()
             _uiState.update {
-                // Ensure first segment always matches session start
                 val segmentStart = if (it.segments.isEmpty()) {
                     it.startTimeNanos
                 } else {

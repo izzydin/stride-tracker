@@ -25,4 +25,7 @@ interface SessionDao {
 
     @Query("SELECT * FROM segments WHERE sessionId = :sessionId ORDER BY segmentIndex ASC")
     fun getSegmentsForSession(sessionId: Long): Flow<List<SegmentEntity>>
+
+    @Query("DELETE FROM sessions WHERE id = :sessionId")
+    suspend fun deleteSessionById(sessionId: Long)
 }

@@ -1,5 +1,6 @@
 package com.example.stridetracker.presentation.viewmodel
 
+import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.stridetracker.data.local.SegmentEntity
@@ -24,29 +25,26 @@ class MeasurementViewModel(
     val uiState: StateFlow<SessionState> = _uiState.asStateFlow()
 
     private var timerJob: Job? = null
-    private var startTime: Long = 0L
+    private var startTimeNanos: Long = 0L
 
     fun onStartStop() {
         val isStarting = !_uiState.value.isRunning
         _uiState.update { it.copy(isRunning = isStarting) }
 
         if (isStarting) {
-            // When session starts, store startTime (adjusting for already elapsed time to support resume)
-            startTime = System.currentTimeMillis() - _uiState.value.elapsedTimeMillis
+            // Use elapsedRealtimeNanos for monotonic, high-precision timing
+            startTimeNanos = SystemClock.elapsedRealtimeNanos() - (_uiState.value.elapsedTimeMillis * 1_000_000L)
             timerJob = viewModelScope.launch {
                 while (true) {
-                    val currentElapsed = System.currentTimeMillis() - startTime
-                    _uiState.update { it.copy(elapsedTimeMillis = currentElapsed) }
-                    // Update every 16ms to support smooth millisecond precision (~60 FPS)
+                    val currentElapsedMillis = (SystemClock.elapsedRealtimeNanos() - startTimeNanos) / 1_000_000L
+                    _uiState.update { it.copy(elapsedTimeMillis = currentElapsedMillis) }
+                    // 16ms delay targets roughly 60fps for smooth UI updates
                     delay(16)
                 }
             }
         } else {
-            // When session stops, cancel coroutine
             timerJob?.cancel()
             timerJob = null
-            
-            // Save session to database
             saveSession()
         }
     }
@@ -63,7 +61,6 @@ class MeasurementViewModel(
                 )
                 val sessionId = sessionDao.insertSession(session)
 
-                // Combine finished segments with the current active segment
                 val allSegments = if (currentState.currentSegmentStrides > 0) {
                     currentState.segments + currentState.currentSegmentStrides
                 } else {
